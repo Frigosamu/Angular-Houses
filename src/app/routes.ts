@@ -13,5 +13,4 @@ const routeConfig: Routes = [
     title: 'Home details',
   },
 ];
-
 export default routeConfig;
