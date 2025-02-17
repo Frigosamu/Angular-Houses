@@ -2,7 +2,9 @@
   "name": "angular.dev",
   "version": "0.0.0",
   "scripts": {
+    "start:json": "json-server db.json",
     "ng": "ng",
+    "startx2": "concurrently \"json-server db.json\" \"ng serve\"",
     "start": "NG_BUILD_PARALLEL_TS=0 ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development"
