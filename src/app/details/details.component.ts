@@ -1,9 +1,9 @@
-import {Component, inject} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {ActivatedRoute} from '@angular/router';
-import {HousingService} from '../housing.service';
-import {HousingLocation} from '../housinglocation';
-import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
+import { HousingService } from '../housing.service';
+import { HousingLocation } from '../housinglocation';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 @Component({
   selector: 'app-details',
   imports: [CommonModule, ReactiveFormsModule],
@@ -32,10 +32,26 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/
         <form [formGroup]="applyForm" (submit)="submitApplication()">
           <label for="first-name">First Name</label>
           <input id="first-name" type="text" formControlName="firstName" required/>
+          <p *ngIf="applyForm.get('firstName')?.invalid && (applyForm.get('firstName')?.touched)"
+            style="color: red; margin-bottom: 10px">
+            First name is obligatory
+          </p>
+
+
           <label for="last-name">Last Name</label>
           <input id="last-name" type="text" formControlName="lastName" required/>
+          <p *ngIf="applyForm.get('lastName')?.invalid && (applyForm.get('lastName')?.touched)"
+            style="color: red; margin-bottom: 10px">
+            Last name is obligatory
+          </p>
+
           <label for="email">Email</label>
           <input id="email" type="email" formControlName="email" />
+          <p *ngIf="applyForm.get('email')?.invalid && (applyForm.get('email')?.touched)"
+            style="color: red; margin-bottom: 10px">
+            Email is obligatory / Invalid format
+          </p>
+          
           <button type="submit" class="primary">Apply now</button>
         </form>
       </section>
