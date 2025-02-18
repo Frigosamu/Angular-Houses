@@ -15639,7 +15639,7 @@ var ComponentFactory = class extends ComponentFactory$1 {
     try {
       const cmpDef = this.componentDef;
       ngDevMode && verifyNotAnOrphanComponent(cmpDef);
-      const tAttributes = rootSelectorOrNode ? ["ng-version", "19.1.5"] : (
+      const tAttributes = rootSelectorOrNode ? ["ng-version", "19.1.6"] : (
         // Extract attributes and classes from the first selector only to match VE behavior.
         extractAttrsAndClassesFromSelector(this.componentDef.selectors[0])
       );
@@ -23986,7 +23986,7 @@ function ɵsetClassDebugInfo(type, debugInfo) {
     def.debugInfo = debugInfo;
   }
 }
-function ɵɵreplaceMetadata(type, applyMetadata, namespaces, locals) {
+function ɵɵreplaceMetadata(type, applyMetadata, namespaces, locals, importMeta = null, id = null) {
   ngDevMode && assertComponentDef(type);
   const currentDef = getComponentDef(type);
   applyMetadata.apply(null, [type, namespaces, ...locals]);
@@ -23999,7 +23999,7 @@ function ɵɵreplaceMetadata(type, applyMetadata, namespaces, locals) {
     const trackedViews = getTrackedLViews().values();
     for (const root of trackedViews) {
       if (isRootView(root) && root[PARENT] === null) {
-        recreateMatchingLViews(newDef, oldDef, root);
+        recreateMatchingLViews(importMeta, id, newDef, oldDef, root);
       }
     }
   }
@@ -24026,32 +24026,32 @@ function mergeWithExistingDefinition(currentDef, newDef) {
     oldDef: clone
   };
 }
-function recreateMatchingLViews(newDef, oldDef, rootLView) {
+function recreateMatchingLViews(importMeta, id, newDef, oldDef, rootLView) {
   ngDevMode && assertDefined(oldDef.tView, "Expected a component definition that has been instantiated at least once");
   const tView = rootLView[TVIEW];
   if (tView === oldDef.tView) {
     ngDevMode && assertComponentDef(oldDef.type);
-    recreateLView(newDef, oldDef, rootLView);
+    recreateLView(importMeta, id, newDef, oldDef, rootLView);
     return;
   }
   for (let i = HEADER_OFFSET; i < tView.bindingStartIndex; i++) {
     const current = rootLView[i];
     if (isLContainer(current)) {
       if (isLView(current[HOST])) {
-        recreateMatchingLViews(newDef, oldDef, current[HOST]);
+        recreateMatchingLViews(importMeta, id, newDef, oldDef, current[HOST]);
       }
       for (let j = CONTAINER_HEADER_OFFSET; j < current.length; j++) {
-        recreateMatchingLViews(newDef, oldDef, current[j]);
+        recreateMatchingLViews(importMeta, id, newDef, oldDef, current[j]);
       }
     } else if (isLView(current)) {
-      recreateMatchingLViews(newDef, oldDef, current);
+      recreateMatchingLViews(importMeta, id, newDef, oldDef, current);
     }
   }
 }
 function clearRendererCache(factory, def) {
   factory.componentReplaced?.(def.id);
 }
-function recreateLView(newDef, oldDef, lView) {
+function recreateLView(importMeta, id, newDef, oldDef, lView) {
   const instance = lView[CONTEXT];
   let host = lView[HOST];
   const parentLView = lView[PARENT];
@@ -24096,9 +24096,24 @@ function recreateLView(newDef, oldDef, lView) {
     refreshView(newTView, newLView, newTView.template, instance);
   };
   if (zone === null) {
-    recreate();
+    executeWithInvalidateFallback(importMeta, id, recreate);
   } else {
-    zone.run(recreate);
+    zone.run(() => executeWithInvalidateFallback(importMeta, id, recreate));
+  }
+}
+function executeWithInvalidateFallback(importMeta, id, callback) {
+  try {
+    callback();
+  } catch (e) {
+    const errorMessage = e.message;
+    if (id !== null && errorMessage) {
+      importMeta?.hot?.send?.("angular:invalidate", {
+        id,
+        message: errorMessage,
+        error: true
+      });
+    }
+    throw e;
   }
 }
 function replaceLViewInTree(parentLView, oldLView, newLView, index) {
@@ -25240,7 +25255,7 @@ var Version = class {
     this.patch = parts.slice(2).join(".");
   }
 };
-var VERSION = new Version("19.1.5");
+var VERSION = new Version("19.1.6");
 var ModuleWithComponentFactories = class {
   ngModuleFactory;
   componentFactories;
@@ -30074,21 +30089,21 @@ export {
 
 @angular/core/fesm2022/primitives/signals.mjs:
   (**
-   * @license Angular v19.1.5
+   * @license Angular v19.1.6
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
 
 @angular/core/fesm2022/primitives/event-dispatch.mjs:
   (**
-   * @license Angular v19.1.5
+   * @license Angular v19.1.6
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
 
 @angular/core/fesm2022/core.mjs:
   (**
-   * @license Angular v19.1.5
+   * @license Angular v19.1.6
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
@@ -30138,4 +30153,4 @@ export {
    * found in the LICENSE file at https://angular.dev/license
    *)
 */
-//# sourceMappingURL=chunk-QUW5EQHX.js.map
+//# sourceMappingURL=chunk-KQVTM4CV.js.map
