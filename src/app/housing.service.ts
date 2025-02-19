@@ -5,6 +5,7 @@ import {HousingLocation} from './housinglocation';
 })
 export class HousingService {
   url = 'http://localhost:3000/locations';
+  
   async getAllHousingLocations(): Promise<HousingLocation[]> {
     const data = await fetch(this.url);
     return (await data.json()) ?? [];
@@ -16,5 +17,15 @@ export class HousingService {
   submitApplication(firstName: string, lastName: string, email: string) {
     // tslint:disable-next-line
     console.log(firstName, lastName, email);
+  }
+
+  async addHousingLocation(newLocation: Partial<HousingLocation>): Promise<void> {
+    await fetch(this.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newLocation),
+    });
   }
 }
